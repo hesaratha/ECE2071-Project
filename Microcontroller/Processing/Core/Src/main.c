@@ -261,12 +261,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     static uint8_t previousSample = 0;
     uint8_t filteredSample = (currentSample + previousSample) / 2;
     HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
-    if (filteredSample > 155) {
-        HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
-    } else {
-        HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
-    }
-
     previousSample = currentSample;
     HAL_UART_Receive_IT(&huart1, &currentSample, 1);
 }

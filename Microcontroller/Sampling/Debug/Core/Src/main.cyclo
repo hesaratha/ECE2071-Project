@@ -4,5 +4,5 @@
 ../Core/Src/main.c:238:13:MX_TIM2_Init	4
 ../Core/Src/main.c:283:13:MX_USART1_UART_Init	2
 ../Core/Src/main.c:318:13:MX_GPIO_Init	1
-../Core/Src/main.c:363:6:HAL_ADC_ConvCpltCallback	2
-../Core/Src/main.c:379:6:Error_Handler	1
+../Core/Src/main.c:363:6:HAL_ADC_ConvCpltCallback	1
+../Core/Src/main.c:374:6:Error_Handler	1

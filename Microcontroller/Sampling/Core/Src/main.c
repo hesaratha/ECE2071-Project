@@ -362,12 +362,7 @@ static void MX_GPIO_Init(void)
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
     uint8_t sampledValue = HAL_ADC_GetValue(&hadc1);
-    if (sampledValue > 155) {
-        HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
-    } else {
-        HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
-    }
-    // HAL_UART_Transmit(&huart1, &sampledValue, 1, HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart1, &sampledValue, 1, HAL_MAX_DELAY);
 }
 
 /* USER CODE END 4 */
