@@ -1,4 +1,7 @@
-/* USER CODE BEGIN Header */
+/* USER CODE BEGIN Header
+ *
+ * THIS IS THE MILESTONE 3 HEADER
+ */
 /**
   ******************************************************************************
   * @file           : main.c
