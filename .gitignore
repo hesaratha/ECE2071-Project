@@ -19,32 +19,6 @@ venv/
 .vscode/
 
 # === C / STM32 / CubeIDE ===
-*.o
-*.d
-*.elf
-*.bin
-*.hex
-*.map
-*.lst
-*.srec
-*.dep
-*.i
-*.bak
-*.su
-
-# STM32CubeIDE project files
-Debug/
-Release/
-MX_*/                   # auto-generated folders
-*.launch
-*.cproject
-*.project
-.settings/
-AC6/
-*.uvoptx
-*.uvprojx
-
-# === General ===
 *.swp
 *~
 .DS_Store
