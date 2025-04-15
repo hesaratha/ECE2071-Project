@@ -1,7 +1,7 @@
 # functions relating to the system menu
 # Created by team E04
 # Created date: 10/04/24
-# Cersion 1.0
+# Version 1.0
 from control.normal_operation import normal_operation
 from lib import quit_program
 

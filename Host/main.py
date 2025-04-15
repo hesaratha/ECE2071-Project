@@ -1,6 +1,7 @@
 import os
-import serial
 import wave
+
+import serial
 import serial.tools.list_ports
 
 SAMPLE_RATE = 5000
@@ -36,9 +37,10 @@ def main():
     filename = get_unique_filename(BASE_FILENAME, EXTENSION)
     print(f"Device found on {stm_port}.")
 
-    print(f"\nStarting audio recording:")
+    print("\nStarting audio recording:")
     print(
-        f"\tDuration: {DURATION_SEC} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({NUM_SAMPLES} bytes)\n")
+        f"\tDuration: {DURATION_SEC} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({NUM_SAMPLES} bytes)\n"
+    )
 
     with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
         data = bytearray()
@@ -53,11 +55,11 @@ def main():
             if percent != last_printed_percent:
                 print(f"\rProgress: {percent}%", end="")
                 last_printed_percent = percent
-    print(f"\nAudio recording completed successfully.")
+    print("\nAudio recording completed successfully.")
 
     print(f"\nWriting audio data to file: {filename}")
 
-    with wave.open(filename, 'wb') as wav:
+    with wave.open(filename, "wb") as wav:
         wav.setnchannels(1)
         wav.setsampwidth(1)
         wav.setframerate(SAMPLE_RATE)
