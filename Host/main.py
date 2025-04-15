@@ -4,7 +4,7 @@ import serial.tools.list_ports
 
 # Configuration
 SAMPLE_RATE = 5000
-DURATION_SEC = 5
+DURATION_SEC = 10
 NUM_SAMPLES = SAMPLE_RATE * DURATION_SEC
 BAUD_RATE = 115200
 OUTPUT_FILENAME = "processed_audio.wav"
@@ -35,9 +35,9 @@ def main():
             byte = ser.read(1)
             if byte:
                 data.extend(byte)
-                print(f"\rReceived: {len(data)}", end="")
+                print(f"\rReceived: {len(data)} /", NUM_SAMPLES, end=" bytes")
 
-        print(f"Captured {len(data)} bytes. Writing to {OUTPUT_FILENAME}...")
+        print(f"\nCaptured {len(data)} bytes. Writing to {OUTPUT_FILENAME}...")
 
         with wave.open(OUTPUT_FILENAME, 'wb') as wav_file:
             wav_file.setnchannels(1)  # Mono
