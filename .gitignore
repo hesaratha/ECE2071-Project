@@ -1,3 +1,6 @@
+# === Host/Audio Files ===
+*.wav
+
 # === Python ===
 __pycache__/
 *.py[cod]
