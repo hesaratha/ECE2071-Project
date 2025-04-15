@@ -44,7 +44,8 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+uint8_t currentSample = 0;
+uint8_t previousSample = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,7 +93,7 @@ int main(void) {
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
     /* USER CODE BEGIN 2 */
-
+    HAL_UART_Receive_IT(&huart1, &currentSample, 1);
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -257,9 +258,7 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    static uint8_t currentSample = 0;
-    static uint8_t previousSample = 0;
-    uint8_t filteredSample = (currentSample + previousSample) / 2;
+    uint8_t filteredSample = (currentSample + previousSample) >> 1;
     HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
     previousSample = currentSample;
     HAL_UART_Receive_IT(&huart1, &currentSample, 1);
