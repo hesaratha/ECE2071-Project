@@ -17,7 +17,6 @@ modeOptions = {
 
 currentChoice = None
 
-
 def display_main_menu():
     """Displays main menu with available modes
     no parameters
