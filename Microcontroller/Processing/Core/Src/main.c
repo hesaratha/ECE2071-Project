@@ -40,7 +40,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
+TIM_HandleTypeDef htim16;
+
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
@@ -54,6 +55,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -94,7 +96,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
-  MX_ADC1_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart1, &currentSample, 1);
   /* USER CODE END 2 */
@@ -103,23 +105,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
     {
-      /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-
-  	  HAL_ADC_Start(&hadc1);
-
-  	  HAL_ADC_PollForConversion(
-  			  &hadc1,
-  			  HAL_MAX_DELAY
-  	  );
-
-  	  uint16_t sampledValue = HAL_ADC_GetValue(&hadc1);
-
-  	  HAL_UART_Transmit(&huart2, (uint16_t*)&sampledValue, sizeof(sampledValue), HAL_MAX_DELAY);
-
-      /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
     }
-    /* USER CODE END 3 */
+  /* USER CODE END 3 */
 }
 
 /**
@@ -180,6 +170,38 @@ void SystemClock_Config(void)
   /** Enable MSI Auto calibration
   */
   HAL_RCCEx_EnableMSIPLLMode();
+}
+
+/**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 31;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 65535;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
+
 }
 
 /**
@@ -270,23 +292,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(Ultrasonic_Trigger_GPIO_Port, Ultrasonic_Trigger_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PA3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  /*Configure GPIO pin : Ultrasonic_Echo_Pin */
+  GPIO_InitStruct.Pin = Ultrasonic_Echo_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(Ultrasonic_Echo_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  /*Configure GPIO pin : Ultrasonic_Trigger_Pin */
+  GPIO_InitStruct.Pin = Ultrasonic_Trigger_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(Ultrasonic_Trigger_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LD3_Pin */
   GPIO_InitStruct.Pin = LD3_Pin;

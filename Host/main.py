@@ -39,9 +39,6 @@ def get_unique_filename(base, ext):
     return FILENAME_FORMAT.format(base=base, index=index, ext=ext)
 
 
-stm_port = find_stm_port()
-
-
 def display_menu(menu):
     """Displays menu with available modes
     parameters: dictionary to display
@@ -220,6 +217,8 @@ def run_menu(menu):
 
 
 def main():
+    stm_port = find_stm_port()
+    
     print("Searching for STM32 device...")
 
     if not stm_port:
