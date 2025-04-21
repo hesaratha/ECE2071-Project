@@ -27,6 +27,8 @@ venv/
 .DS_Store
 Thumbs.db
 
+*settings.xml
+
 # Files
 **/.DS_Store
 
