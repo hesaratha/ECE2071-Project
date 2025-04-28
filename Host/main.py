@@ -12,10 +12,12 @@ BAUD_RATE = 115200
 BASE_FILENAME = "recording"
 FILENAME_FORMAT = "{base}_{index}{ext}"
 
+
 class RecordState(Enum):
     MANUAL = "M"
     DISTANCE = "D"
     WAIT = "W"
+
 
 modeOptions = {
     1: "Manual Recording Mode",
@@ -155,7 +157,47 @@ def manual_recording_mode():
 
 
 def distance_trigger_mode():
-    quit_program()  # placeholder
+    print("\Distance Trigger Mode:")
+
+    sampleDuration = get_sample_Duration()
+    numSamples = int(sampleDuration * SAMPLE_RATE)
+
+    display_menu(ouputOptions)
+    fileType = ouputOptions[get_menu_choice(ouputOptions)]
+    filename = get_unique_filename(BASE_FILENAME, fileType)
+
+    print(f"\nStarting audio recording:")
+    print(
+        f"\tDuration: {sampleDuration} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({numSamples} bytes)\n")
+
+    with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
+        ser.write(RecordState.DISTANCE.value.encode())
+        data = bytearray()
+        last_printed_percent = -1
+
+        while len(data) < numSamples:
+            byte = ser.read(1)
+            if byte:
+                data.append(byte[0])
+
+            percent = int(len(data) / numSamples * 100)
+            if percent != last_printed_percent:
+                print(f"\rProgress: {percent}%", end="")
+                last_printed_percent = percent
+
+        ser.write(RecordState.WAIT.value.encode())
+
+    print(f"\nAudio recording completed successfully.")
+    print(f"\nWriting audio data to file: {filename}")
+
+    if fileType == ".wav":
+        make_wav_file(filename, data)
+    elif fileType == ".png":
+        make_png_file(filename, data, numSamples)
+    else:
+        np.savetxt(filename, data, header=f"Sample rate is: {SAMPLE_RATE} sps")
+
+    print("File saved successfully.")
 
 
 def get_menu_choice(menu) -> int:
