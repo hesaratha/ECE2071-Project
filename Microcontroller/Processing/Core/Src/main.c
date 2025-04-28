@@ -310,9 +310,10 @@ static void MX_GPIO_Init(void) {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART2) {
         HAL_UART_Receive_IT(&huart2, &recordingState, 1);
-        if (recordingState != 'M') {
-            return;
-        }
+        if
+            not((recordingState == 'M') /*Manual*/ or (recordingState == 'D' && distance < 10 /*cm*/) /*Distance Trigger*/) {
+                return;
+            }
     }
     uint8_t filteredSample = (currentSample + previousSample) >> 1;
     HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
@@ -320,33 +321,33 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     HAL_UART_Receive_IT(&huart1, &currentSample, 1);
 }
 
-    /* USER CODE END 4 */
+/* USER CODE END 4 */
 
-    /**
+/**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-    void Error_Handler(void) {
-        /* USER CODE BEGIN Error_Handler_Debug */
-        /* User can add his own implementation to report the HAL error return state */
-        __disable_irq();
-        while (1) {
-        }
-        /* USER CODE END Error_Handler_Debug */
+void Error_Handler(void) {
+    /* USER CODE BEGIN Error_Handler_Debug */
+    /* User can add his own implementation to report the HAL error return state */
+    __disable_irq();
+    while (1) {
     }
+    /* USER CODE END Error_Handler_Debug */
+}
 
 #ifdef USE_FULL_ASSERT
-    /**
+/**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
   * @param  file: pointer to the source file name
   * @param  line: assert_param error line source number
   * @retval None
   */
-    void assert_failed(uint8_t * file, uint32_t line) {
-        /* USER CODE BEGIN 6 */
-        /* User can add his own implementation to report the file name and line number,
+void assert_failed(uint8_t *file, uint32_t line) {
+    /* USER CODE BEGIN 6 */
+    /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-        /* USER CODE END 6 */
-    }
+    /* USER CODE END 6 */
+}
 #endif /* USE_FULL_ASSERT */
