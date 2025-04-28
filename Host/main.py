@@ -12,6 +12,11 @@ BAUD_RATE = 115200
 BASE_FILENAME = "recording"
 FILENAME_FORMAT = "{base}_{index}{ext}"
 
+class RecordState(Enum):
+    MANUAL = "M"
+    DISTANCE = "D"
+    WAIT = "W"
+
 modeOptions = {
     1: "Manual Recording Mode",
     2: "Distance Trigger Mode"
@@ -213,9 +218,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-class RecordState(Enum):
-    MANUAL = "M"
-    DISTANCE = "D"
-    WAIT = "W"

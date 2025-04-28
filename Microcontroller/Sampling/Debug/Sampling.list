@@ -39,13 +39,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_line   000151f0  00000000  00000000  00042f61  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000d6c09  00000000  00000000  00058151  2**0
+ 18 .debug_str    000d6c15  00000000  00000000  00058151  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  0012ed5a  2**0
+ 19 .comment      00000043  00000000  00000000  0012ed66  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000525c  00000000  00000000  0012eda0  2**2
+ 20 .debug_frame  0000525c  00000000  00000000  0012edac  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000007d  00000000  00000000  00133ffc  2**0
+ 21 .debug_line_str 00000089  00000000  00000000  00134008  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
