@@ -318,6 +318,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
     previousSample = currentSample;
     HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+}
 
     /* USER CODE END 4 */
 
