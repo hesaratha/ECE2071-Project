@@ -5,6 +5,8 @@ import serial.tools.list_ports
 import matplotlib.pyplot as plt
 import numpy as np
 
+from enum import Enum
+
 SAMPLE_RATE = 5000
 BAUD_RATE = 115200
 BASE_FILENAME = "recording"
@@ -104,7 +106,7 @@ def make_png_file(filename, data, numSamples):
 
 
 def manual_recording_mode():
-    print("\nMaunual Recording Mode:")
+    print("\nManual Recording Mode:")
 
     sampleDuration = get_sample_Duration()
     numSamples = int(sampleDuration * SAMPLE_RATE)
@@ -118,6 +120,7 @@ def manual_recording_mode():
         f"\tDuration: {sampleDuration} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({numSamples} bytes)\n")
 
     with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
+        ser.write(RecordState.MANUAL.value.encode())
         data = bytearray()
         last_printed_percent = -1
 
@@ -130,6 +133,8 @@ def manual_recording_mode():
             if percent != last_printed_percent:
                 print(f"\rProgress: {percent}%", end="")
                 last_printed_percent = percent
+
+        ser.write(RecordState.WAIT.value.encode())
 
     print(f"\nAudio recording completed successfully.")
     print(f"\nWriting audio data to file: {filename}")
@@ -208,3 +213,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+class RecordState(Enum):
+    MANUAL = "M"
+    DISTANCE = "D"
+    WAIT = "W"
