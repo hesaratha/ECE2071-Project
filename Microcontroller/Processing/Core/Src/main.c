@@ -311,7 +311,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART2) {
         HAL_UART_Receive_IT(&huart2, &recordingState, 1);
         if
+<<<<<<< HEAD
             not((recordingState == 'M') /*or (recordingState == 'DistanceTrigger' && distance < 10) */) {
+=======
+            not((recordingState == 'M') /*Manual*/ or (recordingState == 'D' && distance < 10 /*cm*/) /*Distance Trigger*/) {
+>>>>>>> 9eb8302610aabde1c269ab714bb219d7f678890c
                 return;
             }
     }
