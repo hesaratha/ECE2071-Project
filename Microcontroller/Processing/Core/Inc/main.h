@@ -61,10 +61,10 @@ void Error_Handler(void);
 #define MCO_GPIO_Port GPIOA
 #define VCP_TX_Pin GPIO_PIN_2
 #define VCP_TX_GPIO_Port GPIOA
-#define Ultrasonic_Echo_Pin GPIO_PIN_3
-#define Ultrasonic_Echo_GPIO_Port GPIOA
-#define Ultrasonic_Trigger_Pin GPIO_PIN_4
-#define Ultrasonic_Trigger_GPIO_Port GPIOA
+#define Echo_Pin GPIO_PIN_3
+#define Echo_GPIO_Port GPIOA
+#define Trigger_Pin GPIO_PIN_4
+#define Trigger_GPIO_Port GPIOA
 #define Sample_In_Pin GPIO_PIN_10
 #define Sample_In_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13

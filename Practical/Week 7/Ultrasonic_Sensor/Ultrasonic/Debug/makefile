@@ -60,8 +60,8 @@ all: main-build
 main-build: Week7_Prac.elf secondary-outputs
 
 # Tool invocations
-Week7_Prac.elf Week7_Prac.map: $(OBJS) $(USER_OBJS) C:\Users\cwosc\STM32CubeIDE\workspace_1.18.0\Week7_Prac\STM32L432KCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Week7_Prac.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\cwosc\STM32CubeIDE\workspace_1.18.0\Week7_Prac\STM32L432KCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Week7_Prac.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Week7_Prac.elf Week7_Prac.map: $(OBJS) $(USER_OBJS) C:\Users\willi\OneDrive\Desktop\ECE2071\Project\ B\ECE2071-Project\Practical\Week\ 7\Ultrasonic_Sensor\Ultrasonic\STM32L432KCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Week7_Prac.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\willi\OneDrive\Desktop\ECE2071\Project B\ECE2071-Project\Practical\Week 7\Ultrasonic_Sensor\Ultrasonic\STM32L432KCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Week7_Prac.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

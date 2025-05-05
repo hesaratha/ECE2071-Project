@@ -4,6 +4,7 @@ import wave
 import serial.tools.list_ports
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 from enum import Enum
 
@@ -59,7 +60,7 @@ no returns:
         print("Main Menu")
         print("-------------------------")
         for key, value in menu.items():
-            print(f"{key}: {value} Mode")
+            print(f"{key}: {value}")
         print("Press Ctrl+C to quit")
     else:
         print("Select file Type")
@@ -127,7 +128,7 @@ def manual_recording_mode():
         f"\tDuration: {sampleDuration} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({numSamples} bytes)\n")
 
     with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
-        ser.write(RecordState.MANUAL.value.encode())
+        ser.write("0".encode('utf-8'))            #disregard distance dependent recording mode
         data = bytearray()
         last_printed_percent = -1
 
@@ -140,8 +141,6 @@ def manual_recording_mode():
             if percent != last_printed_percent:
                 print(f"\rProgress: {percent}%", end="")
                 last_printed_percent = percent
-
-        ser.write(RecordState.WAIT.value.encode())
 
     print(f"\nAudio recording completed successfully.")
     print(f"\nWriting audio data to file: {filename}")
@@ -157,7 +156,7 @@ def manual_recording_mode():
 
 
 def distance_trigger_mode():
-    print("\Distance Trigger Mode:")
+    print("\nDistance Trigger Mode:")
 
     sampleDuration = get_sample_Duration()
     numSamples = int(sampleDuration * SAMPLE_RATE)
@@ -171,7 +170,7 @@ def distance_trigger_mode():
         f"\tDuration: {sampleDuration} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({numSamples} bytes)\n")
 
     with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
-        ser.write(RecordState.DISTANCE.value.encode())
+        ser.write("1".encode('utf-8'))    #trigger distance dependent recording mode
         data = bytearray()
         last_printed_percent = -1
 
@@ -184,8 +183,6 @@ def distance_trigger_mode():
             if percent != last_printed_percent:
                 print(f"\rProgress: {percent}%", end="")
                 last_printed_percent = percent
-
-        ser.write(RecordState.WAIT.value.encode())
 
     print(f"\nAudio recording completed successfully.")
     print(f"\nWriting audio data to file: {filename}")
