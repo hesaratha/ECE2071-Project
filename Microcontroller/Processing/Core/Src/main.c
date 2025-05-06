@@ -49,8 +49,8 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint8_t currentSample = 0;
 uint8_t previousSample = 0;
-int recordingState = 0;
-uint8_t distanceTriggerMode = '0'; //set to 1 and it never gets set to 0 in manual recording mode
+int recordingState = 0;				//#1 if 1 it is recording, else it is not
+uint8_t distanceTriggerMode = '0'; 	//#2 if 1 it is in distance trigger mode if not then manual recording mode
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,7 +65,7 @@ static void MX_TIM16_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int get_distance(){
+int get_distance(){												//#3 the function to get distance from ultrasonic, shouldnt need to be touched
    	HAL_GPIO_WritePin(Trigger_GPIO_Port, Trigger_Pin, 1);
    	__HAL_TIM_SET_COUNTER(&htim16,0);
 
@@ -127,7 +127,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     while (1) {
-    	if (distanceTriggerMode == '1'){
+    	if (distanceTriggerMode == '1'){				//#4 if trigger mode is active read the distance, if its less than 10 then record, if its not then dont transmit data to pc
 			int distance = get_distance();
 
     		if (distance < 10){
@@ -359,8 +359,18 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/*
+ * This function is called automatically when a UART receive interrupt is triggered.
+ * - If the interrupt is from USART2 (PC/python code):
+ *     - set distance trigger mode to 1 or zero depending on what was sent from the pc.
+ * - If the interrupt is from USART1 (other microcontroller i.e. music data):
+ *     - If `recordingState` is active (== 1), apply a simple low-pass filter by averaging
+ *       the current and previous samples, then transmit the result over USART2 (to the pc).
+ *     - Update `previousSample` with the current sample.
+ *     - update `currentSample` with nonblocking recieve.
+ */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART2 ){
+	if (huart->Instance == USART2 ){									i
     	HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
     }else if (huart->Instance == USART1) {
     	if (recordingState == 1){
