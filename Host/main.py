@@ -8,8 +8,8 @@ import time
 
 from enum import Enum
 
-SAMPLE_RATE =  22050 #11025 #10000  #5000
-BAUD_RATE =  921600 #115200
+SAMPLE_RATE = 22050  # 11025 #10000  #5000
+BAUD_RATE = 921600  # 115200
 BASE_FILENAME = "recording"
 FILENAME_FORMAT = "{base}_{index}{ext}"
 
@@ -128,7 +128,7 @@ def manual_recording_mode():
         f"\tDuration: {sampleDuration} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({numSamples} bytes)\n")
 
     with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
-        ser.write("0".encode('utf-8'))            #disregard distance dependent recording mode
+        ser.write("0".encode('utf-8'))  # disregard distance dependent recording mode
         data = bytearray()
         last_printed_percent = -1
 
@@ -158,31 +158,28 @@ def manual_recording_mode():
 def distance_trigger_mode():
     print("\nDistance Trigger Mode:")
 
-    sampleDuration = get_sample_Duration()
-    numSamples = int(sampleDuration * SAMPLE_RATE)
-
     display_menu(ouputOptions)
     fileType = ouputOptions[get_menu_choice(ouputOptions)]
     filename = get_unique_filename(BASE_FILENAME, fileType)
 
     print(f"\nStarting audio recording:")
-    print(
-        f"\tDuration: {sampleDuration} seconds\n\tSample Rate: {SAMPLE_RATE} Hz\n\tTotal Samples: ({numSamples} bytes)\n")
 
     with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
-        ser.write("1".encode('utf-8'))    #trigger distance dependent recording mode
+        ser.write("1".encode('utf-8'))  # trigger distance dependent recording mode
         data = bytearray()
-        last_printed_percent = -1
 
-        while len(data) < numSamples:
-            byte = ser.read(1)
-            if byte:
-                data.append(byte[0])
+        try:
+            while True:
+                byte = ser.read(1)
+                if byte:
+                    data.append(byte[0])
 
-            percent = int(len(data) / numSamples * 100)
-            if percent != last_printed_percent:
-                print(f"\rProgress: {percent}%", end="")
-                last_printed_percent = percent
+                numSamples = len(data)
+                if numSamples != prevNumSamples:
+                    print(f"\rProgress: {numSamples} bytes", end="")
+                    prevNumSamples = numSamples
+        except KeyboardInterrupt:
+            pass
 
     print(f"\nAudio recording completed successfully.")
     print(f"\nWriting audio data to file: {filename}")
