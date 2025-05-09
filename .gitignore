@@ -1,5 +1,7 @@
-# === Host/Audio Files ===
+# === Host Files ===
 *.wav
+*.png
+*.csv
 
 # === Python ===
 __pycache__/
@@ -29,6 +31,7 @@ Thumbs.db
 
 # Settings
 **/*settings.xml
+**/.settings/
 
 # Files
 **/.DS_Store
