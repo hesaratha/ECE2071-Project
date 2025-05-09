@@ -167,6 +167,7 @@ def distance_trigger_mode():
     with serial.Serial(stm_port, BAUD_RATE, timeout=1) as ser:
         ser.write("1".encode('utf-8'))  # trigger distance dependent recording mode
         data = bytearray()
+        prevNumSamples = -1
 
         try:
             while True:
