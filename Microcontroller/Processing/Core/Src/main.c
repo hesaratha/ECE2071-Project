@@ -51,6 +51,16 @@ uint8_t currentSample = 0;
 uint8_t previousSample = 0;
 int recordingState = 0;				//#1 if 1 it is recording, else it is not
 uint8_t distanceTriggerMode = '0'; 	//#2 if 1 it is in distance trigger mode if not then manual recording mode
+
+int queue_len = 100;
+int queue[100];
+int front = 0;
+int rear = 0;
+int len = 0;
+int mov_len = 2;
+int mov_av = -1;
+int average = -1;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,6 +92,63 @@ int get_distance(){												//#3 the function to get distance from ultrasonic
 
    	return distance;
    }
+
+
+void add_queue(int new){
+    queue[rear] = new;
+    rear = (rear+1)%queue_len;
+    len += 1;
+    if (len>queue_len){
+        len = queue_len;
+    }
+}
+
+
+
+int average_queue2(){
+    if (average == -1){
+        int i = front;
+        int sum = 0;
+        for (int count = 0; count < queue_len; count++) {
+            sum += queue[i];
+            i = (i+1)%queue_len;
+        }
+        average = sum/len;
+    }else{
+        average -= queue[front]/queue_len;
+        average += queue[rear-1]/queue_len;
+    }
+    return average;
+}
+
+
+
+
+
+int last_average_queue2(){
+    int i;
+    if (rear>=mov_len){
+        i = rear-mov_len;
+    } else{
+        i = queue_len+rear-mov_len;
+    }
+
+    if (mov_av == -1){
+        int sum = 0;
+        for (int count = 0; count < mov_len; count++) {
+            sum += queue[i];
+            i = (i+1)%queue_len;
+        }
+        int mov_av = sum/mov_len;
+        return mov_av;
+
+    } else {
+        mov_av -= queue[i-1]/mov_len;
+        mov_av += queue[rear-1]/mov_len;
+        return mov_av;
+    }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -256,7 +323,7 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 921600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -291,7 +358,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 921600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -370,15 +437,29 @@ static void MX_GPIO_Init(void)
  *     - update `currentSample` with nonblocking recieve.
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART2 ){									i
+	if (huart->Instance == USART2 ){
     	HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
     }else if (huart->Instance == USART1) {
     	if (recordingState == 1){
-			uint8_t filteredSample = (currentSample + previousSample) >> 1;
-			HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
-			previousSample = currentSample;
+    		HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+
+    		if (len < queue_len){
+    			add_queue(currentSample);
+
+    			if (len == queue_len){
+    				last_average_queue2();
+//    				average_queue2();
+    			}
+
+    		} else{
+    			add_queue(currentSample);
+    			uint8_t filteredSample = last_average_queue2();
+    			HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
+    		}
+
     	}
-		HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+
+
     }
 }
 

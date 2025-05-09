@@ -8,8 +8,8 @@ import time
 
 from enum import Enum
 
-SAMPLE_RATE = 5000
-BAUD_RATE = 115200
+SAMPLE_RATE =  22050 #11025 #10000  #5000
+BAUD_RATE =  921600 #115200
 BASE_FILENAME = "recording"
 FILENAME_FORMAT = "{base}_{index}{ext}"
 
