@@ -142,7 +142,7 @@ int last_average_queue2() {
             sum += queue[i];
             i = (i + 1) % queue_len;
         }
-        mov_av = sum / mov_len;
+        int mov_av = sum / mov_len;
         return mov_av;
 
     } else {
@@ -190,32 +190,25 @@ int main(void) {
     HAL_UART_Receive_IT(&huart1, &currentSample, 1);
     HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
     HAL_TIM_Base_Start(&htim16);
+    int a = 0;
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    static uint8_t lastRecordingState = 0;
-
     while (1) {
-        /* determine new state */
-        int newState;
-        if (distanceTriggerMode == '1') {
-            newState = (get_distance() < 10);
+        if (distanceTriggerMode == '1') { //#4 if trigger mode is active read the distance, if its less than 10 then record, if its not then dont transmit data to pc
+            int distance = get_distance();
+
+            if (distance < 10) {
+                recordingState = 1;
+            } else {
+                recordingState = 0;
+            }
         } else {
-            newState = 1;
+            recordingState = 1;
         }
-
-        /* if we just stopped recording, reset our buffers */
-        if (lastRecordingState == 1 && newState == 0) {
-            front = rear = len = 0;
-            average = mov_av = -1;
-        }
-        recordingState = newState;
-        lastRecordingState = newState;
-
         HAL_Delay(60);
     }
-
 
     /* USER CODE END WHILE */
 
@@ -431,30 +424,28 @@ static void MX_GPIO_Init(void) {
  *     - update `currentSample` with nonblocking recieve.
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART2) {
-		// always re-arm the mode-select interrupt
-		HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
-	}
-	else if (huart->Instance == USART1) {
-		// 1) immediately re-arm so you keep getting samples
-		HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+    if (huart->Instance == USART2) {
+        HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
+    } else if (huart->Instance == USART1) {
+        if (recordingState == 1) {
+            HAL_UART_Receive_IT(&huart1, &currentSample, 1);
 
-		// 2) only process/transmit when in recordingState
-		if (recordingState == 1) {
-			if (len < queue_len) {
-				add_queue(currentSample);
-				if (len == queue_len) {
-					last_average_queue2();
-				}
-			} else {
-				add_queue(currentSample);
-				uint8_t filteredSample = last_average_queue2();
-				HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
-			}
-		}
-	}
+            if (len < queue_len) {
+                add_queue(currentSample);
+
+                if (len == queue_len) {
+                    last_average_queue2();
+                    //    				average_queue2();
+                }
+
+            } else {
+                add_queue(currentSample);
+                uint8_t filteredSample = last_average_queue2();
+                HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
+            }
+        }
+    }
 }
-
 
 /* USER CODE END 4 */
 
