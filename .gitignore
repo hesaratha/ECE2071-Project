@@ -30,7 +30,6 @@ venv/
 Thumbs.db
 
 # Settings
-**/*settings.xml
 **/.settings/
 
 # Files
