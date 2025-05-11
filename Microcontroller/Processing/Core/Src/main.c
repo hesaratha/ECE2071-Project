@@ -190,7 +190,6 @@ int main(void) {
     HAL_UART_Receive_IT(&huart1, &currentSample, 1);
     HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
     HAL_TIM_Base_Start(&htim16);
-    int a = 0;
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -427,15 +426,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART2) {
         HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
     } else if (huart->Instance == USART1) {
-        if (recordingState == 1) {
-            HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+        HAL_UART_Receive_IT(&huart1, &currentSample, 1);
 
+    	if (recordingState == 1) {
             if (len < queue_len) {
                 add_queue(currentSample);
 
                 if (len == queue_len) {
                     last_average_queue2();
-                    //    				average_queue2();
+                    //average_queue2();
                 }
 
             } else {
