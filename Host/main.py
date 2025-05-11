@@ -63,8 +63,7 @@ def get_choice(options: dict[int, T], prompt: str = "Select an option") -> T:
         except ValueError:
             print("ERROR: Please enter a number")
         except KeyboardInterrupt:
-            print()
-            exit(0)
+            raise
 
 
 def record_manual(
@@ -154,29 +153,42 @@ def save_csv(filename: Path, samples: np.ndarray, sample_rate: int) -> None:
 
 def choose_recording_mode() -> Tuple[bytes, Optional[int]]:
     """Prompt user to select recording mode and duration if manual."""
-    display_menu({k: v[0] for k, v in MODE_OPTIONS.items()}, title="Recording Modes")
-    _, mode_cmd = get_choice(MODE_OPTIONS, prompt="Choose mode")
-    if mode_cmd == b"0":
-        while True:
+    while True:
+        display_menu({k: v[0] for k, v in MODE_OPTIONS.items()}, title="Recording Modes")
+        try:
+            _, mode_cmd = get_choice(MODE_OPTIONS, prompt="Choose mode")
+        except KeyboardInterrupt:
+            print("\nExiting program.")
+            exit(0)
+        if mode_cmd == b"0":  # Manual mode
             try:
                 seconds = float(input("Enter duration in seconds: "))
-                return mode_cmd, int(seconds * SAMPLE_RATE)
-            except ValueError:
-                print("ERROR: Invalid number")
-    return mode_cmd, None
+            except KeyboardInterrupt:
+                print()
+                continue  # back to mode selection
+            return mode_cmd, int(seconds * SAMPLE_RATE)
+        return mode_cmd, None
 
 
-def choose_output_format() -> str:
+def choose_output_format() -> Optional[str]:
     """Prompt user to select output file format."""
     display_menu(FILE_FORMATS, title="Output Formats")
-    return get_choice(FILE_FORMATS, prompt="Choose file type")
+    try:
+        return get_choice(FILE_FORMATS, prompt="Choose file type")
+    except KeyboardInterrupt:
+        print()
+        return None  # back to mode selection
 
 
 def run_cli(port: str) -> None:
     """Main interactive loop: select mode, record, and save."""
     while True:
-        mode_cmd, count = choose_recording_mode()
+        choice = choose_recording_mode()
+        mode_cmd, count = choice
         ext = choose_output_format()
+        if ext is None:
+            continue
+
         filename = get_unique_filename(BASE_FILENAME, ext)
 
         print(f"Recording to {filename}")
