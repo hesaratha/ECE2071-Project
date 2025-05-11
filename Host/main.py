@@ -67,10 +67,10 @@ def get_choice(options: dict[int, T], prompt: str = "Select an option") -> T:
 
 
 def record_manual(
-        port: str,
-        baud_rate: int,
-        mode_cmd: bytes,
-        sample_count: int,
+    port: str,
+    baud_rate: int,
+    mode_cmd: bytes,
+    sample_count: int,
 ) -> np.ndarray:
     """Record a fixed number of audio samples from the STM32 device."""
     with serial.Serial(port, baud_rate, timeout=1) as ser:
@@ -93,9 +93,9 @@ def record_manual(
 
 
 def record_distance_trigger(
-        port: str,
-        baud_rate: int,
-        mode_cmd: bytes,
+    port: str,
+    baud_rate: int,
+    mode_cmd: bytes,
 ) -> np.ndarray:
     """Record audio samples until interrupted by the user."""
     with serial.Serial(port, baud_rate, timeout=1) as ser:
@@ -117,10 +117,10 @@ def record_distance_trigger(
 
 
 def record_audio(
-        port: str,
-        baud_rate: int,
-        mode_cmd: bytes,
-        sample_count: Optional[int] = None,
+    port: str,
+    baud_rate: int,
+    mode_cmd: bytes,
+    sample_count: Optional[int] = None,
 ) -> np.ndarray:
     """Dispatch recording based on mode: fixed count or triggered."""
     if sample_count is None:
@@ -138,9 +138,9 @@ def save_png(filename: Path, samples: np.ndarray, sample_rate: int) -> None:
     times = np.arange(samples.size) / sample_rate
     plt.figure()
     plt.plot(times, samples, linewidth=0.2)
-    plt.title('Audio Waveform')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Amplitude')
+    plt.title("Audio Waveform")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Amplitude")
     plt.grid(True)
     plt.savefig(str(filename))
     plt.close()
@@ -148,13 +148,15 @@ def save_png(filename: Path, samples: np.ndarray, sample_rate: int) -> None:
 
 def save_csv(filename: Path, samples: np.ndarray, sample_rate: int) -> None:
     """Export samples to a CSV with sample rate header."""
-    np.savetxt(str(filename), samples, header=f"Sample rate {sample_rate} Hz", fmt='%d')
+    np.savetxt(str(filename), samples, header=f"Sample rate {sample_rate} Hz", fmt="%d")
 
 
 def choose_recording_mode() -> Tuple[bytes, Optional[int]]:
     """Prompt user to select recording mode and duration if manual."""
     while True:
-        display_menu({k: v[0] for k, v in MODE_OPTIONS.items()}, title="Recording Modes")
+        display_menu(
+            {k: v[0] for k, v in MODE_OPTIONS.items()}, title="Recording Modes"
+        )
         try:
             _, mode_cmd = get_choice(MODE_OPTIONS, prompt="Choose mode")
         except KeyboardInterrupt:
@@ -196,11 +198,11 @@ def run_cli(port: str) -> None:
 
         print(f"Saving to {filename}")
         match ext:
-            case '.wav':
+            case ".wav":
                 save_wav(filename, samples, SAMPLE_RATE)
-            case '.png':
+            case ".png":
                 save_png(filename, samples, SAMPLE_RATE)
-            case '.csv':
+            case ".csv":
                 save_csv(filename, samples, SAMPLE_RATE)
 
         print("File saved successfully.")
@@ -216,5 +218,5 @@ def main() -> None:
     run_cli(port)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
