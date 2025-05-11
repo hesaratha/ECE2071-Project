@@ -49,8 +49,8 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint8_t currentSample = 0;
 uint8_t previousSample = 0;
-int recordingState = 0;				//#1 if 1 it is recording, else it is not
-uint8_t distanceTriggerMode = '0'; 	//#2 if 1 it is in distance trigger mode if not then manual recording mode
+int recordingState = 1;            //#1 if 1 it is recording, else it is not
+uint8_t distanceTriggerMode = '0'; //#2 if 1 it is in distance trigger mode if not then manual recording mode
 
 int queue_len = 100;
 int queue[100];
@@ -75,48 +75,51 @@ static void MX_TIM16_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int get_distance(){												//#3 the function to get distance from ultrasonic, shouldnt need to be touched
-   	HAL_GPIO_WritePin(Trigger_GPIO_Port, Trigger_Pin, 1);
-   	__HAL_TIM_SET_COUNTER(&htim16,0);
+int get_distance() { //#3 the function to get distance from ultrasonic, shouldnt need to be touched
+    HAL_GPIO_WritePin(Trigger_GPIO_Port, Trigger_Pin, 1);
+    __HAL_TIM_SET_COUNTER(&htim16, 0);
 
-   	while(__HAL_TIM_GET_COUNTER(&htim16) <= 10){};
-   	HAL_GPIO_WritePin(Trigger_GPIO_Port, Trigger_Pin, 0);
+    while (__HAL_TIM_GET_COUNTER(&htim16) <= 10) {
+    };
+    HAL_GPIO_WritePin(Trigger_GPIO_Port, Trigger_Pin, 0);
 
-   	while (HAL_GPIO_ReadPin(Echo_GPIO_Port, Echo_Pin) == 0){};
-   	__HAL_TIM_SET_COUNTER(&htim16,0);
+    while (HAL_GPIO_ReadPin(Echo_GPIO_Port, Echo_Pin) == 0) {
+    };
+    __HAL_TIM_SET_COUNTER(&htim16, 0);
 
-   	while (HAL_GPIO_ReadPin(Echo_GPIO_Port, Echo_Pin) == 1){};
-   	uint32_t echoTime = __HAL_TIM_GET_COUNTER(&htim16);
+    while (HAL_GPIO_ReadPin(Echo_GPIO_Port, Echo_Pin) == 1) {
+    };
+    uint32_t echoTime = __HAL_TIM_GET_COUNTER(&htim16);
 
-   	int distance = echoTime / 29 / 2;
+    int distance = echoTime / 29 / 2;
 
-   	return distance;
-   }
+    return distance;
+}
 
 
-void add_queue(int new){
+void add_queue(int new) {
     queue[rear] = new;
-    rear = (rear+1)%queue_len;
+    rear = (rear + 1) % queue_len;
     len += 1;
-    if (len>queue_len){
+    if (len > queue_len) {
         len = queue_len;
     }
 }
 
 
 
-int average_queue2(){
-    if (average == -1){
+int average_queue2() {
+    if (average == -1) {
         int i = front;
         int sum = 0;
         for (int count = 0; count < queue_len; count++) {
             sum += queue[i];
-            i = (i+1)%queue_len;
+            i = (i + 1) % queue_len;
         }
-        average = sum/len;
-    }else{
-        average -= queue[front]/queue_len;
-        average += queue[rear-1]/queue_len;
+        average = sum / len;
+    } else {
+        average -= queue[front] / queue_len;
+        average += queue[rear - 1] / queue_len;
     }
     return average;
 }
@@ -125,26 +128,26 @@ int average_queue2(){
 
 
 
-int last_average_queue2(){
+int last_average_queue2() {
     int i;
-    if (rear>=mov_len){
-        i = rear-mov_len;
-    } else{
-        i = queue_len+rear-mov_len;
+    if (rear >= mov_len) {
+        i = rear - mov_len;
+    } else {
+        i = queue_len + rear - mov_len;
     }
 
-    if (mov_av == -1){
+    if (mov_av == -1) {
         int sum = 0;
         for (int count = 0; count < mov_len; count++) {
             sum += queue[i];
-            i = (i+1)%queue_len;
+            i = (i + 1) % queue_len;
         }
-        int mov_av = sum/mov_len;
+        mov_av = sum / mov_len;
         return mov_av;
 
     } else {
-        mov_av -= queue[i-1]/mov_len;
-        mov_av += queue[rear-1]/mov_len;
+        mov_av -= queue[i - 1] / mov_len;
+        mov_av += queue[rear - 1] / mov_len;
         return mov_av;
     }
 }
@@ -155,124 +158,125 @@ int last_average_queue2(){
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void) {
 
-  /* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN Init */
+    /* USER CODE BEGIN Init */
 
 
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+    /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+    /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART2_UART_Init();
-  MX_USART1_UART_Init();
-  MX_TIM16_Init();
-  /* USER CODE BEGIN 2 */
-  HAL_UART_Receive_IT(&huart1, &currentSample, 1);
-  HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
-  HAL_TIM_Base_Start(&htim16);
-  int a = 0;
-  /* USER CODE END 2 */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_USART2_UART_Init();
+    MX_USART1_UART_Init();
+    MX_TIM16_Init();
+    /* USER CODE BEGIN 2 */
+    HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+    HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
+    HAL_TIM_Base_Start(&htim16);
+    /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
+    static uint8_t lastRecordingState = 0;
+
     while (1) {
-    	if (distanceTriggerMode == '1'){				//#4 if trigger mode is active read the distance, if its less than 10 then record, if its not then dont transmit data to pc
-			int distance = get_distance();
+        /* determine new state */
+        int newState;
+        if (distanceTriggerMode == '1') {
+            newState = (get_distance() < 10);
+        } else {
+            newState = 1;
+        }
 
-    		if (distance < 10){
-    			recordingState = 1;
-    		}else{
-    			recordingState = 0;
-    		}
-    	}else{
-    		recordingState = 1;
-    	}
-    		HAL_Delay(60);
+        /* if we just stopped recording, reset our buffers */
+        if (lastRecordingState == 1 && newState == 0) {
+            front = rear = len = 0;
+            average = mov_av = -1;
+        }
+        recordingState = newState;
+        lastRecordingState = newState;
+
+        HAL_Delay(60);
     }
+
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-  /* USER CODE END 3 */
+    /* USER CODE END 3 */
 }
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+void SystemClock_Config(void) {
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage
+    /** Configure the main internal regulator output voltage
   */
-  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK) {
+        Error_Handler();
+    }
 
-  /** Configure LSE Drive Capability
+    /** Configure LSE Drive Capability
   */
-  HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+    HAL_PWR_EnableBkUpAccess();
+    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
 
-  /** Initializes the RCC Oscillators according to the specified parameters
+    /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
-  RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
-  RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 16;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE | RCC_OSCILLATORTYPE_MSI;
+    RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+    RCC_OscInitStruct.MSIState = RCC_MSI_ON;
+    RCC_OscInitStruct.MSICalibrationValue = 0;
+    RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
+    RCC_OscInitStruct.PLL.PLLM = 1;
+    RCC_OscInitStruct.PLL.PLLN = 16;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+    RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+    RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        Error_Handler();
+    }
 
-  /** Initializes the CPU, AHB and APB buses clocks
+    /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
+        Error_Handler();
+    }
 
-  /** Enable MSI Auto calibration
+    /** Enable MSI Auto calibration
   */
-  HAL_RCCEx_EnableMSIPLLMode();
+    HAL_RCCEx_EnableMSIPLLMode();
 }
 
 /**
@@ -280,31 +284,28 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_TIM16_Init(void)
-{
+static void MX_TIM16_Init(void) {
 
-  /* USER CODE BEGIN TIM16_Init 0 */
+    /* USER CODE BEGIN TIM16_Init 0 */
 
-  /* USER CODE END TIM16_Init 0 */
+    /* USER CODE END TIM16_Init 0 */
 
-  /* USER CODE BEGIN TIM16_Init 1 */
+    /* USER CODE BEGIN TIM16_Init 1 */
 
-  /* USER CODE END TIM16_Init 1 */
-  htim16.Instance = TIM16;
-  htim16.Init.Prescaler = 31;
-  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 65535;
-  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim16.Init.RepetitionCounter = 0;
-  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM16_Init 2 */
+    /* USER CODE END TIM16_Init 1 */
+    htim16.Instance = TIM16;
+    htim16.Init.Prescaler = 31;
+    htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim16.Init.Period = 65535;
+    htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim16.Init.RepetitionCounter = 0;
+    htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim16) != HAL_OK) {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM16_Init 2 */
 
-  /* USER CODE END TIM16_Init 2 */
-
+    /* USER CODE END TIM16_Init 2 */
 }
 
 /**
@@ -312,34 +313,31 @@ static void MX_TIM16_Init(void)
   * @param None
   * @retval None
   */
-static void MX_USART1_UART_Init(void)
-{
+static void MX_USART1_UART_Init(void) {
 
-  /* USER CODE BEGIN USART1_Init 0 */
+    /* USER CODE BEGIN USART1_Init 0 */
 
-  /* USER CODE END USART1_Init 0 */
+    /* USER CODE END USART1_Init 0 */
 
-  /* USER CODE BEGIN USART1_Init 1 */
+    /* USER CODE BEGIN USART1_Init 1 */
 
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 921600;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
+    /* USER CODE END USART1_Init 1 */
+    huart1.Instance = USART1;
+    huart1.Init.BaudRate = 921600;
+    huart1.Init.WordLength = UART_WORDLENGTH_8B;
+    huart1.Init.StopBits = UART_STOPBITS_1;
+    huart1.Init.Parity = UART_PARITY_NONE;
+    huart1.Init.Mode = UART_MODE_TX_RX;
+    huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+    huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+    huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    if (HAL_UART_Init(&huart1) != HAL_OK) {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USART1_Init 2 */
 
-  /* USER CODE END USART1_Init 2 */
-
+    /* USER CODE END USART1_Init 2 */
 }
 
 /**
@@ -347,34 +345,31 @@ static void MX_USART1_UART_Init(void)
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void)
-{
+static void MX_USART2_UART_Init(void) {
 
-  /* USER CODE BEGIN USART2_Init 0 */
+    /* USER CODE BEGIN USART2_Init 0 */
 
-  /* USER CODE END USART2_Init 0 */
+    /* USER CODE END USART2_Init 0 */
 
-  /* USER CODE BEGIN USART2_Init 1 */
+    /* USER CODE BEGIN USART2_Init 1 */
 
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 921600;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
+    /* USER CODE END USART2_Init 1 */
+    huart2.Instance = USART2;
+    huart2.Init.BaudRate = 921600;
+    huart2.Init.WordLength = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits = UART_STOPBITS_1;
+    huart2.Init.Parity = UART_PARITY_NONE;
+    huart2.Init.Mode = UART_MODE_TX_RX;
+    huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+    huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+    huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    if (HAL_UART_Init(&huart2) != HAL_OK) {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USART2_Init 2 */
 
-  /* USER CODE END USART2_Init 2 */
-
+    /* USER CODE END USART2_Init 2 */
 }
 
 /**
@@ -382,47 +377,46 @@ static void MX_USART2_UART_Init(void)
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
-{
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  /* USER CODE BEGIN MX_GPIO_Init_1 */
+static void MX_GPIO_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /* USER CODE BEGIN MX_GPIO_Init_1 */
 
-  /* USER CODE END MX_GPIO_Init_1 */
+    /* USER CODE END MX_GPIO_Init_1 */
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(Trigger_GPIO_Port, Trigger_Pin, GPIO_PIN_RESET);
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(Trigger_GPIO_Port, Trigger_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : Echo_Pin */
-  GPIO_InitStruct.Pin = Echo_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Echo_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : Echo_Pin */
+    GPIO_InitStruct.Pin = Echo_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(Echo_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Trigger_Pin */
-  GPIO_InitStruct.Pin = Trigger_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(Trigger_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : Trigger_Pin */
+    GPIO_InitStruct.Pin = Trigger_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(Trigger_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LD3_Pin */
-  GPIO_InitStruct.Pin = LD3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD3_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : LD3_Pin */
+    GPIO_InitStruct.Pin = LD3_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LD3_GPIO_Port, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN MX_GPIO_Init_2 */
+    /* USER CODE BEGIN MX_GPIO_Init_2 */
 
-  /* USER CODE END MX_GPIO_Init_2 */
+    /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -437,31 +431,30 @@ static void MX_GPIO_Init(void)
  *     - update `currentSample` with nonblocking recieve.
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART2 ){
-    	HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
-    }else if (huart->Instance == USART1) {
-    	if (recordingState == 1){
-    		HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+	if (huart->Instance == USART2) {
+		// always re-arm the mode-select interrupt
+		HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
+	}
+	else if (huart->Instance == USART1) {
+		// 1) immediately re-arm so you keep getting samples
+		HAL_UART_Receive_IT(&huart1, &currentSample, 1);
 
-    		if (len < queue_len){
-    			add_queue(currentSample);
-
-    			if (len == queue_len){
-    				last_average_queue2();
-//    				average_queue2();
-    			}
-
-    		} else{
-    			add_queue(currentSample);
-    			uint8_t filteredSample = last_average_queue2();
-    			HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
-    		}
-
-    	}
-
-
-    }
+		// 2) only process/transmit when in recordingState
+		if (recordingState == 1) {
+			if (len < queue_len) {
+				add_queue(currentSample);
+				if (len == queue_len) {
+					last_average_queue2();
+				}
+			} else {
+				add_queue(currentSample);
+				uint8_t filteredSample = last_average_queue2();
+				HAL_UART_Transmit(&huart2, &filteredSample, 1, HAL_MAX_DELAY);
+			}
+		}
+	}
 }
+
 
 /* USER CODE END 4 */
 
@@ -469,17 +462,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
+void Error_Handler(void) {
+    /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
     while (1) {
     }
-  /* USER CODE END Error_Handler_Debug */
+    /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -487,11 +479,10 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t *file, uint32_t line)
-{
-  /* USER CODE BEGIN 6 */
+void assert_failed(uint8_t *file, uint32_t line) {
+    /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
+    /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

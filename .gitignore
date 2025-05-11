@@ -1,5 +1,7 @@
-# === Host/Audio Files ===
+# === Host Files ===
 *.wav
+*.png
+*.csv
 
 # === Python ===
 __pycache__/
@@ -28,16 +30,20 @@ venv/
 Thumbs.db
 
 # Settings
-**/*settings.xml
+**/.settings/
 
 # Files
 **/.DS_Store
 
 # Ignore output files:
-*/outputs/*
+**/outputs/*
+
+# Ignore metadata files:
+**/.metadata/*
+**/metadata/*
 
 # Ignore debug files
-*/Debug/*
+**/Debug/*
 *.launch
 
 # Prerequisites
@@ -79,7 +85,7 @@ Thumbs.db
 *.hex
 
 # Debug files
-*.dSYM/
+**.dSYM/
 *.su
 *.idb
 *.pdb
@@ -87,9 +93,8 @@ Thumbs.db
 # Kernel Module Compile Results
 *.mod*
 *.cmd
-.tmp_versions/
+**.tmp_versions/
 modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
