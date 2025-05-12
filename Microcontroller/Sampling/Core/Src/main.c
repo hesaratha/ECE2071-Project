@@ -50,7 +50,7 @@ UART_HandleTypeDef huart1;
 
 int shouldSend = 0;
 uint8_t currentSample = 0;
-uint8_t lower, upper;
+uint8_t scaledDown;
 
 /* USER CODE END PV */
 
@@ -198,7 +198,7 @@ static void MX_ADC1_Init(void)
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc1.Init.Resolution = ADC_RESOLUTION_8B;
+  hadc1.Init.Resolution = ADC_RESOLUTION_10B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
@@ -370,10 +370,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 	uint8_t count = 0;
     uint16_t currentSample = HAL_ADC_GetValue(&hadc1);
 	if (count%2 == 0){
-		lower = currentSample & 255; 							// & lower bits with 11111111 to store them in lower byte
-		upper = currentSample >> 8 & 3;							// shift right 8 bits to & top 8 bits of hadc with with 00000011 (we only mask 2 bits as we already have 8) to store them in upper byte
-		HAL_UART_Transmit_IT(&huart1, &lower, 1); 				//only transmit lower 8 bits as it has more data, effectively downsampling
-	}
+		scaledDown = currentSample >> 2;
+		HAL_UART_Transmit_IT(&huart1, &scaledDown, 1);
+		}
 	count ++;
 	HAL_ADC_Start_IT(&hadc1);
 }
