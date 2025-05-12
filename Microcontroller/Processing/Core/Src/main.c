@@ -190,7 +190,6 @@ int main(void) {
     HAL_UART_Receive_IT(&huart1, &currentSample, 1);
     HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
     HAL_TIM_Base_Start(&htim16);
-    int a = 0;
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -413,29 +412,18 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-/*
- * This function is called automatically when a UART receive interrupt is triggered.
- * - If the interrupt is from USART2 (PC/python code):
- *     - set distance trigger mode to 1 or zero depending on what was sent from the pc.
- * - If the interrupt is from USART1 (other microcontroller i.e. music data):
- *     - If `recordingState` is active (== 1), apply a simple low-pass filter by averaging
- *       the current and previous samples, then transmit the result over USART2 (to the pc).
- *     - Update `previousSample` with the current sample.
- *     - update `currentSample` with nonblocking recieve.
- */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART2) {
         HAL_UART_Receive_IT(&huart2, &distanceTriggerMode, 1);
     } else if (huart->Instance == USART1) {
-        if (recordingState == 1) {
-            HAL_UART_Receive_IT(&huart1, &currentSample, 1);
+        HAL_UART_Receive_IT(&huart1, &currentSample, 1);
 
+    	if (recordingState == 1) {
             if (len < queue_len) {
                 add_queue(currentSample);
 
                 if (len == queue_len) {
                     last_average_queue2();
-                    //    				average_queue2();
                 }
 
             } else {

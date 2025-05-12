@@ -1,3 +1,10 @@
+""""
+Client side python code, allows user to interface with processing STM, record data, change modes and data output types
+Created By: Group C09
+Created Date: 11/05/2025
+version ='1.0'
+"""
+
 from pathlib import Path
 from typing import Optional, Tuple, TypeVar
 

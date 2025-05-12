@@ -50,7 +50,7 @@ UART_HandleTypeDef huart1;
 
 int shouldSend = 0;
 uint8_t currentSample = 0;
-uint8_t previousSample = 0;
+uint8_t scaledDown;
 
 /* USER CODE END PV */
 
@@ -198,7 +198,7 @@ static void MX_ADC1_Init(void)
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc1.Init.Resolution = ADC_RESOLUTION_8B;
+  hadc1.Init.Resolution = ADC_RESOLUTION_10B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
@@ -253,9 +253,9 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 10;
+  htim1.Init.Prescaler = 24;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 132;
+  htim1.Init.Period = 28;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -367,25 +367,14 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-
-//	No Downsample
-	uint8_t sampleValue = HAL_ADC_GetValue(&hadc1);
-	HAL_UART_Transmit(&huart1, &sampleValue, 1, HAL_MAX_DELAY);
-
-//	Downsample
-//    uint8_t currentSample = HAL_ADC_GetValue(&hadc1);
-//	if (shouldSend == 1){
-//		uint8_t filteredSample = (currentSample + previousSample) >> 1;
-//		HAL_UART_Transmit(&huart1, &filteredSample, 1, HAL_MAX_DELAY);
-//		shouldSend = 0;
-//	} else{
-//		shouldSend = 1;
-//	}
-//    previousSample = currentSample;
-
-//    uint8_t sampleValue = HAL_ADC_GetValue(&hadc1);
-//    HAL_UART_Transmit(&huart1, &sampleValue, 1, HAL_MAX_DELAY);
-
+	uint8_t count = 0;
+    uint16_t currentSample = HAL_ADC_GetValue(&hadc1);
+	if (count%2 == 0){
+		scaledDown = currentSample >> 2;
+		HAL_UART_Transmit_IT(&huart1, &scaledDown, 1);
+		}
+	count ++;
+	HAL_ADC_Start_IT(&hadc1);
 }
 
 /* USER CODE END 4 */
